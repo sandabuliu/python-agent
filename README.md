@@ -2,7 +2,7 @@
 
 ### 流程 & 结构
 -----------
-<img src=https://github.com/sandabuliu/python-agent/blob/master/static/structure.png />
+<img src=static/structure.png />
 
 
 ### 安装
