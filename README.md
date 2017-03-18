@@ -1,5 +1,9 @@
 #  Agent
 
+### 流程 & 结构
+-----------
+<img src=static/structure.png />
+
 
 ### 安装
 -----------
