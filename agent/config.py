@@ -5,7 +5,6 @@ import os
 import sys
 import json
 import ConfigParser
-from itertools import compress
 
 __author__ = 'tong'
 
@@ -26,16 +25,32 @@ if hasattr(sys, 'frozen'):
 else:
     ROOT_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 
+PATH = {
+    'ROOT': ROOT_PATH,
+    'RULE': [os.path.join(ROOT_PATH, 'rule')]
+}
+
 
 def config(filename):
-    if not filename:
-        filename = os.path.join(ROOT_PATH, 'rule')
-
     if not os.path.exists(filename):
         raise Exception('No such config file %s' % filename)
     cfg = ConfigParser.ConfigParser()
     cfg.read(filename)
     return cfg
+
+
+class Rulebase(object):
+    @staticmethod
+    def append(filename):
+        PATH['RULE'].append(filename)
+
+    @staticmethod
+    def remove(index):
+        PATH['RULE'].pop(index)
+
+    @staticmethod
+    def all():
+        return PATH['RULE']
 
 
 def rule(name='root', rulebase=None):
@@ -65,6 +80,9 @@ def rule(name='root', rulebase=None):
             rv[key] = value
         return rv
 
+    bools = {'1': True, 'yes': True, 'true': True, 'on': True,
+             '0': False, 'no': False, 'false': False, 'off': False}
+
     def rule_type(rl):
         from logparser import Rule
         r = Rule()
@@ -73,13 +91,17 @@ def rule(name='root', rulebase=None):
         if r.ruleparser.TYPE is dict:
             value = json.loads(value, object_hook=_decode_dict)
         if r.ruleparser.TYPE is bool:
-            value = {'1': True, 'yes': True,
-                     'true': True, 'on': True,
-                     '0': False, 'no': False,
-                     'false': False, 'off': False}.get(value.lower(), False)
+            value = bools.get(value.lower(), False)
         return value
 
-    rules = dict(config(rulebase).items(name))
+    for rulebase in ([rulebase] if rulebase else PATH['RULE']):
+        try:
+            rules = dict(config(rulebase).items(name))
+            break
+        except:
+            pass
+    else:
+        raise Exception('No such rule %s' % name)
 
     ret = {'type': rules['type'], 'rule': rule_type(rules)}
     if rules.get('fields'):
@@ -116,3 +138,4 @@ def ruletocfg(name, rule):
     rules.insert(0, ret)
     return '\n\n'.join(rules)
 
+rulebase = Rulebase()

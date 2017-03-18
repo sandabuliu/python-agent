@@ -3,6 +3,7 @@
 
 import os
 import json
+import time
 
 from . import __version__
 from ..logger import Logging
@@ -129,6 +130,51 @@ class Csv(object):
         self.fp = open(self.filename, 'w')
         self.writer = DictWriter(self.fp, self.fieldnames, **self.kwargs)
         self.writer.writeheader()
+
+
+class SQLAlchemy(object):
+    def __init__(self, table, fields, quote=None, *args, **kwargs):
+        try:
+            from sqlalchemy import create_engine
+            from sqlalchemy.orm import sessionmaker
+        except ImportError:
+            raise OutputError('Lack of kafka module, try to execute `pip install SQLAlchemy` install it')
+        self.engine = create_engine(*args, **kwargs)
+        self.DB_Session = sessionmaker(bind=self.engine)
+        self.quote = quote or '"'
+        self._session = None
+        self._timer = None
+        self._table = table
+
+        action = 'INSERT INTO'
+        keys = ','.join(['%s%s%s' % (self.quote, key, self.quote) for key in fields])
+        self.fields = fields
+        self.sql = '%s %s (%s) VALUES (%s)' % (action, self.table, keys, ','.join(['?'] * len(keys)))
+
+    @property
+    def session(self):
+        if not self._session:
+            self._timer = time.time()
+            self._session = self.DB_Session()
+        elif time.time() - self._timer > 900:
+            self._session.close()
+            self._session = self.DB_Session()
+            self._timer = time.time()
+        return self._session
+
+    @property
+    def table(self):
+        return '%s%s%s' % (self.quote, self._table, self.quote)
+
+    def send(self, event):
+        data = event.raw_data
+        self.session.execute(self.sql, data.values())
+
+    def sendmany(self, events):
+        values = []
+        for event in events:
+            values.append([event.raw_data.get(field) for field in self.fields])
+        self.session.execute(self.sql, values)
 
 
 class Screen(object):
