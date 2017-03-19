@@ -147,13 +147,17 @@ class SQLAlchemy(object):
 
     @property
     def session(self):
-        if not self._session:
+        try:
+            if not self._session:
+                self._timer = time.time()
+                self._session = self.DB_Session()
+            elif time.time() - self._timer > 900:
+                self._session.close()
+                self._session = self.DB_Session()
+                self._timer = time.time()
+        except:
             self._timer = time.time()
             self._session = self.DB_Session()
-        elif time.time() - self._timer > 900:
-            self._session.close()
-            self._session = self.DB_Session()
-            self._timer = time.time()
         return self._session
 
     @property
