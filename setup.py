@@ -33,7 +33,7 @@ version = re.search(
 
 NAME = 'python-agent'
 VERSION = version
-DESCRIPTION = '文件/日志结构化分析框架'
+DESCRIPTION = '数据结构化分析框架'
 KEYWORDS = 'File CSV Log Structure'
 AUTHOR = 'tong'
 AUTHOR_EMAIL = 'g_tongbin@foxmail.com'

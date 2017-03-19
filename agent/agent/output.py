@@ -15,7 +15,7 @@ logger = Logging()
 
 
 class Kafka(object):
-    def __init__(self, server, client=None, **kwargs):
+    def __init__(self, topic, server, client=None, **kwargs):
         try:
             import kafka
         except ImportError:
@@ -23,6 +23,7 @@ class Kafka(object):
 
         client = client or kafka.SimpleClient
         self._producer = None
+        self._topic = topic
         try:
             self._kafka = client(server, **kwargs)
         except Exception, e:
@@ -38,21 +39,13 @@ class Kafka(object):
     def send(self, event):
         if not self._producer:
             raise OutputError('No producer init')
-        logger.info('OUTPUT INSERT Kafka 1: %s' % self._producer.send_messages(event.type, event.data))
+        logger.info('OUTPUT INSERT Kafka 1: %s' % self._producer.send_messages(self._topic, event.data))
 
     def sendmany(self, events):
         if not self._producer:
             raise OutputError('No producer init')
-        senders = {}
-        for event in events:
-            tp = event.type
-            sender = senders.get(tp, [])
-            sender.append(event.data)
-            senders[tp] = sender
-
-        for sender, messages in senders.items():
-            logger.info('OUTPUT INSERT Kafka %s: %s' % (len(messages),
-                                                        self._producer.send_messages(sender, *messages)))
+        logger.info('OUTPUT INSERT Kafka %s: %s' %
+                    (len(events), self._producer.send_messages(self._topic, *[e.data for e in events])))
 
     def close(self):
         if self._producer:
@@ -133,7 +126,7 @@ class Csv(object):
 
 
 class SQLAlchemy(object):
-    def __init__(self, table, fields, quote=None, *args, **kwargs):
+    def __init__(self, table, fieldnames, *args, **kwargs):
         try:
             from sqlalchemy import create_engine
             from sqlalchemy.orm import sessionmaker
@@ -141,15 +134,16 @@ class SQLAlchemy(object):
             raise OutputError('Lack of kafka module, try to execute `pip install SQLAlchemy` install it')
         self.engine = create_engine(*args, **kwargs)
         self.DB_Session = sessionmaker(bind=self.engine)
-        self.quote = quote or '"'
+        self.quote = kwargs.pop('quote', '`')
         self._session = None
         self._timer = None
         self._table = table
 
         action = 'INSERT INTO'
-        keys = ','.join(['%s%s%s' % (self.quote, key, self.quote) for key in fields])
-        self.fields = fields
-        self.sql = '%s %s (%s) VALUES (%s)' % (action, self.table, keys, ','.join(['?'] * len(keys)))
+        keys = ','.join(['%s%s%s' % (self.quote, key, self.quote) for key in fieldnames])
+        values = ','.join([':%s' % key for key in fieldnames])
+        self.fields = fieldnames
+        self.sql = '%s %s (%s) VALUES (%s)' % (action, self.table, keys, values)
 
     @property
     def session(self):
@@ -168,13 +162,12 @@ class SQLAlchemy(object):
 
     def send(self, event):
         data = event.raw_data
-        self.session.execute(self.sql, data.values())
+        self.session.execute(self.sql, data)
+        self.session.commit()
 
     def sendmany(self, events):
-        values = []
-        for event in events:
-            values.append([event.raw_data.get(field) for field in self.fields])
-        self.session.execute(self.sql, values)
+        self.session.execute(self.sql, [event.raw_data for event in events])
+        self.session.commit()
 
 
 class Screen(object):
@@ -188,14 +181,18 @@ class Screen(object):
 
     def send(self, event):
         self.counter += 1
-        print str(event)
-        print 'Number.%s' % self.counter
+        print '=== %s ===' % self.counter
+        print 'Type: %s' % event.type
+        if isinstance(event.raw_data, basestring):
+            print 'Result: %s' % event.raw_data.strip()
+        else:
+            for key, value in event.raw_data.items():
+                print '%s: %s' % (key, value)
+        print
 
     def sendmany(self, events):
         for event in events:
-            print event
-        self.counter += len(events)
-        print 'Number.%s' % self.counter
+            print self.send(event)
 
 
 class Null(object):

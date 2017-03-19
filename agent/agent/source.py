@@ -199,8 +199,8 @@ class File(object):
 
 
 class Csv(File):
-    def __init__(self, path, **kwargs):
-        super(Csv, self).__init__(path)
+    def __init__(self, path, filewait=None, confirmwait=None, cachefile=None, **kwargs):
+        super(Csv, self).__init__(path, filewait, confirmwait, cachefile)
         self.kwargs = kwargs
         self.data = None
 

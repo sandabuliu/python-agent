@@ -5,17 +5,17 @@
 
 ### 流程 & 结构
 -----------
-<img src=docs/static/structure.png />
+<img src=../static/structure.png />
 
 
 ### 安装
 -----------
-```shell
+``` shell
 pip install git+https://github.com/sandabuliu/python-agent.git
 ```
 or
 
-```shell
+``` shell
 git clone https://github.com/sandabuliu/python-agent.git
 cd python-agent
 python setup.py install
@@ -25,7 +25,7 @@ python setup.py install
 ### QuickStart
 ---------------
 ### Nginx日志
-```txt
+``` txt
 52.53.224.247 - - [14/Dec/2016:14:35:08 +0000] "POST / HTTP/1.1" 400 0 "-" "User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)" "-"
 123.125.71.76 - - [18/Mar/2017:09:50:34 +0000] "GET / HTTP/1.1" 200 5981 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)" "-"
 ...
@@ -33,7 +33,7 @@ python setup.py install
 
 ### 使用方法
 ##### 直接输出
-```python
+``` python
 from agent import source, output, Agent
 s = source.File('/var/log/nginx/access.log')
 o = output.Screen()
@@ -54,7 +54,7 @@ a.start()
 	...
 
 ##### 使用nginx规则解析输出
-```python
+``` python
 from agent import rule, source, output, Agent
 s = source.File('/var/log/nginx/access.log')
 o = output.Screen()
