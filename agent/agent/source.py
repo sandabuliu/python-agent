@@ -50,6 +50,7 @@ class Log(object):
             self.stream.seek(0, 2)
         while True:
             if self.inter.is_set():
+                logger.info('SOURCE LOG STOP: %s' % self.lineno)
                 break
             self.pos = self.stream.tell()
             line = self.stream.readline()
