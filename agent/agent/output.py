@@ -4,6 +4,9 @@
 import os
 import json
 import time
+import gzip
+import base64
+import StringIO
 
 from . import __version__
 from ..logger import Logging
@@ -66,28 +69,41 @@ class HTTPRequest(object):
             ret = requests.get(self.server, params=event.raw_data, headers=self.headers)
             logger.info('OUTPUT INSERT Request 1: %s' % ret)
         elif self.method == 'POST':
-            ret = requests.post(self.server, data=self.data(event), headers=self.headers)
+            ret = requests.post(self.server, data=self.data(event.raw_data), headers=self.headers)
             logger.info('OUTPUT INSERT Request 1: %s' % ret)
 
     def sendmany(self, events):
         import requests
+        data = {'data': self.package(events), 'gzip': '1'}
         if self.method == 'GET':
-            for event in events:
-                self.send(event)
+            ret = requests.post(self.server, params=data, headers=self.headers)
+            logger.info('OUTPUT INSERT Request %s: %s' % (len(events), ret))
         elif self.method == 'POST':
-            ret = requests.post(self.server, data=self.data(events), headers=self.headers)
+            ret = requests.post(self.server, data=self.data(data), headers=self.headers)
             logger.info('OUTPUT INSERT Request %s: %s' % (len(events), ret))
 
     def data(self, data):
-        if isinstance(data, list):
-            data = [event.raw_data for event in data]
-        else:
-            data = data.raw_data
-
         ctype = self.headers.get('Content-Type')
         if ctype == 'application/json':
             return json.dumps(data, separators=(',', ':'))
         return data
+
+    @staticmethod
+    def package(events):
+        import urllib
+
+        data = json.dumps([item.raw_data for item in events])
+        if isinstance(data, unicode):
+            data = data.encode('utf8')
+
+        buf = StringIO.StringIO()
+        fd = gzip.GzipFile(fileobj=buf, mode="w")
+        fd.write(data)
+        fd.close()
+        result = buf.getvalue()
+        result = base64.b64encode(result)
+        result = urllib.urlencode(result).encode('utf8')
+        return result
 
 
 class Csv(object):

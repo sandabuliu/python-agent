@@ -45,6 +45,7 @@ class Log(object):
         self.process = psutil.Process()
         self.catch()
         for i in range(self.startline):
+            self.lineno += 1
             self.stream.readline()
         if self.startline < 0:
             self.stream.seek(0, 2)

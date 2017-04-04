@@ -32,7 +32,7 @@ class Logging(object):
 
         def trace(self, **kwargs):
             if self.level >= self.logger.level:
-                msg = '\n%s\n' % '\n'.join(['[%s]\n%s' % (k.strip(), v.strip()) for k, v in kwargs.items()])
+                msg = '\n%s\n' % '\n'.join(['[%s]\n%s' % (k.strip(), str(v).strip()) for k, v in kwargs.items()])
                 self.logger.info(msg, extra={'trace_id': self.trace_id})
 
     @property
