@@ -76,7 +76,7 @@ class HTTPRequest(object):
         import requests
         data = {'data': self.package(events), 'gzip': '1'}
         if self.method == 'GET':
-            ret = requests.post(self.server, params=data, headers=self.headers)
+            ret = requests.get(self.server, params=data, headers=self.headers)
             logger.info('OUTPUT INSERT Request %s: %s' % (len(events), ret))
         elif self.method == 'POST':
             ret = requests.post(self.server, data=self.data(data), headers=self.headers)
