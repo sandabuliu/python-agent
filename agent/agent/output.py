@@ -90,8 +90,6 @@ class HTTPRequest(object):
 
     @staticmethod
     def package(events):
-        import urllib
-
         data = json.dumps([item.raw_data for item in events])
         if isinstance(data, unicode):
             data = data.encode('utf8')
