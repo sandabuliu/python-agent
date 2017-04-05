@@ -102,7 +102,6 @@ class HTTPRequest(object):
         fd.close()
         result = buf.getvalue()
         result = base64.b64encode(result)
-        result = urllib.urlencode(result).encode('utf8')
         return result
 
 
