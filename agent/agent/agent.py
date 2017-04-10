@@ -26,6 +26,18 @@ class DefaultParser(object):
     def parse(self, data):
         return ParserResult(data, data, data)
 
+    @property
+    def rule(self):
+        return None
+
+    @property
+    def fieldnames(self):
+        return []
+
+    @property
+    def fieldtypes(self):
+        return {}
+
 
 class DefaultCleaner(object):
     def __init__(self, fmt='result'):
@@ -164,8 +176,7 @@ class Agent(multiprocessing.Process):
         if isinstance(qin, queues.Queue):
             signal.signal(signal.SIGINT, ctrl_c)
         sender = self.sender
-        if hasattr(sender, 'catch'):
-            sender.catch(self.agentname)
+        sender.catch(self)
         while True:
             data = None
             try:
@@ -184,8 +195,7 @@ class Agent(multiprocessing.Process):
             except BaseException, e:
                 logger.warn('PARSER PASS error: %s' % e).trace(line=data)
                 continue
-        if hasattr(sender, 'throw'):
-            sender.throw()
+        sender.throw()
         logger.info('AGENT STOP PARSER')
 
     def stop(self, async=False):

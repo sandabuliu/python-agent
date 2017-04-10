@@ -25,6 +25,10 @@ class Datatype(object):
                 return subcls
         raise Exception(u'未知类型: %s' % item)
 
+    @property
+    def data(self):
+        return self._data
+
 
 class Number(Datatype):
     pattern = re.compile(r"(\d*\.)?\d+")
@@ -40,11 +44,20 @@ class Number(Datatype):
             raise ParseException('%s is not a number' % data)
         super(Number, self).__init__(data)
 
+    @property
+    def data(self):
+        if '.' in self._data:
+            return float(self._data)
+        return int(self._data)
+
 
 class Date(Datatype):
     def __init__(self, data):
-        data = parse(data, fuzzy=True).strftime('%Y-%m-%d %H:%M:%S')
+        data = parse(data, fuzzy=True)
         super(Date, self).__init__(data)
+
+    def __str__(self):
+        return self._data.strftime('%Y-%m-%d %H:%M:%S')
 
 
 class String(Datatype):

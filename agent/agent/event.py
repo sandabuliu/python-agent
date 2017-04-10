@@ -4,6 +4,8 @@
 import json
 from exception import EventError
 
+from .util import Encoder
+
 __author__ = 'tong'
 
 
@@ -43,7 +45,7 @@ class Event(object):
 
     @property
     def data(self):
-        return json.dumps(self._data, separators=(',', ':'), sort_keys=True)
+        return json.dumps(self._data, separators=(',', ':'), sort_keys=True, cls=Encoder)
 
     @data.setter
     def data(self, value):

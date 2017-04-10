@@ -209,7 +209,7 @@ class Screen(object):
 
     def sendmany(self, events):
         for event in events:
-            print self.send(event)
+            self.send(event)
 
 
 class Null(object):

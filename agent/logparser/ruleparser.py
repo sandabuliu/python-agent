@@ -85,7 +85,7 @@ class Type(Rulebase):
         self.rule = Datatype.get(rule)
 
     def parse(self, log):
-        return {'0': '%s' % self.rule(log)}
+        return {'0': self.rule(log).data}
 
 
 class Kv(Rulebase):
