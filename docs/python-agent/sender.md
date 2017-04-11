@@ -43,3 +43,55 @@ o = sender.BatchSender(o)
 a = Agent(s, o)
 a.start()
 ```
+
+#### 3、FilterSender
+------------
+发送过滤器。
+
+参数：
+> `output`: 一个output对象。
+> 
+> `max_size`: 缓存大小，大于该值后将数据打包发送。默认`500`。
+> 
+> `queue_size`: 队列大小，队列用于缓存发送数据。该值一般大于max_size，使得异步发送期间，队列里还可以append数据。默认值`2000`。
+> 
+> `flush_max_time`: 刷新时间长度。等待时间超过该值时，会刷新缓存区。单位为秒，默认值`30`。
+> 
+> `cachefile`: 发送失败时，会把相关失败信息以及数据写到该文件中。默认为`None`。
+
+示例：
+
+发送POST请求日志
+
+```python
+from agent import source, output, sender, rule, Field
+s = source.Log('/var/log/messages')
+o = output.HTTPRequest('http://127.0.0.1:8080')
+o = sender.FilterSender(o, Field('method') == 'POST')
+a = Agent(s, o, rule=rule('nginx'))
+a.start()
+```
+
+发送POST请求, 且包大小大于2000的日志
+
+```python
+from agent import source, output, sender, rule, Field
+s = source.Log('/var/log/messages')
+o = output.HTTPRequest('http://127.0.0.1:8080')
+o = sender.FilterSender(o, Field('method') == 'POST',
+                           Field('body_bytes_sent') >= 2000)
+a = Agent(s, o, rule=rule('nginx'))
+a.start()
+```
+
+发送GET或POST请求, 且包大小大于2000的日志
+
+```python
+from agent import source, output, sender, rule, Field, Or
+s = source.Log('/var/log/messages')
+o = output.HTTPRequest('http://127.0.0.1:8080')
+o = sender.FilterSender(o, Or(Field('method') == 'POST', Field('method') == 'GET'),
+                           Field('body_bytes_sent') >= 2000)
+a = Agent(s, o, rule=rule('nginx'))
+a.start()
+```
