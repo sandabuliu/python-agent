@@ -10,6 +10,7 @@ import StringIO
 
 from . import __version__
 from ..logger import Logging
+from util import JSONCls
 from exception import OutputError
 
 __author__ = 'tong'
@@ -203,8 +204,7 @@ class Screen(object):
         if isinstance(event.raw_data, basestring):
             print 'Result: %s' % event.raw_data.strip()
         else:
-            for key, value in event.raw_data.items():
-                print '%s: %s' % (key, value)
+            print json.dumps(event.raw_data, indent=2, cls=JSONCls)
         print
 
     def sendmany(self, events):

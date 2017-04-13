@@ -10,7 +10,7 @@ from random import randint
 from Queue import Queue
 from exception import RetryAllowedErrs
 from ..logger import Logging
-from .util import And
+from .util import And, Or, Field
 
 __author__ = 'tong'
 
@@ -25,6 +25,7 @@ class Sender(object):
     def __init__(self, output):
         self._output = output
         self.name = None
+        self.fieldtypes = {}
 
     @property
     def output(self):
@@ -95,7 +96,7 @@ class BatchSender(Sender):
             self._finished_event.set()
             logger.info('SENDER STOP')
 
-    def __init__(self, output, max_size=500, queue_size=2000, flush_max_time=30, timeout=2, cachefile=None):
+    def __init__(self, output, max_size=500, queue_size=2000, flush_max_time=30, timeout=2, cachepath=None):
         super(BatchSender, self).__init__(output)
         self._flush_size = int(max_size * 0.8)
         self.flush_max_time = flush_max_time
@@ -103,7 +104,7 @@ class BatchSender(Sender):
         self._max_size = queue_size
         self._queue = None
         self._timeout = timeout
-        self._cache = cachefile
+        self._cache = cachepath
 
         self.need_flush = None
         self._buffers = None
@@ -183,10 +184,23 @@ class BatchSender(Sender):
 class FilterSender(Sender):
     def __init__(self, output, *args):
         super(FilterSender, self).__init__(output)
-        self.filter = And(*args)
+        if any([not isinstance(i, (Field, Or, And)) for i in args]):
+            raise Exception('Filter args should be in (`Field`, `Or`, `And`)')
+        if not args:
+            self.filter = type('name'.encode('utf8'), (object, ), {'result': lambda s, x: True})()
+        elif len(args) == 1:
+            self.filter = args[0]
+        else:
+            self.filter = And(*args)
 
     def send(self, event):
-        if self.filter.result(event.raw_data):
+        try:
+            result = self.filter.result(event.raw_data)
+        except Exception, e:
+            logger.error('Filter %s Failed, cause: %s' % (str(self.filter), e))
+            result = True
+
+        if result:
             self.output.send(event)
 
     def sendmany(self, events):

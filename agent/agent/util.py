@@ -3,6 +3,7 @@
 
 import os
 import json
+import pytz
 from datetime import datetime, date, time
 
 __author__ = 'tong'
@@ -38,11 +39,11 @@ class Filter(object):
         return os.path.exists(self.cachefile or '')
 
 
-class Encoder(json.JSONEncoder):
+class JSONCls(json.JSONEncoder):
     def __init__(self, skipkeys=False, ensure_ascii=False, check_circular=True, allow_nan=True, sort_keys=False,
                  indent=None, separators=None, encoding='', default=None):
 
-        super(Encoder, self).__init__(skipkeys, ensure_ascii, check_circular, allow_nan, sort_keys, indent, separators,
+        super(JSONCls, self).__init__(skipkeys, ensure_ascii, check_circular, allow_nan, sort_keys, indent, separators,
                                       encoding, default)
 
     def default(self, obj):
@@ -68,37 +69,62 @@ def fields(*args, **kwargs):
 class Field(object):
     def __init__(self, name):
         self.name = name
-        self.operator = None
+        self.operator = lambda x, y: x == y
         self.value = None
-        self.linker = None
-        self.right = None
-        self.left = None
+        self.linker = '='
 
-    def set(self, o, v):
+    def set(self, o, v, l):
         self.operator = o
         self.value = v
+        self.linker = l
         return self
 
     def result(self, data):
+        if not isinstance(data, dict):
+            raise Exception('data should be a dict')
         return self.operator(data.get(self.name), self.value)
 
     def __eq__(self, other):
-        return self.set(lambda x, y: x == y, other)
+        return self.set(lambda x, y: x == y, other, '==')
 
     def __ne__(self, other):
-        return self.set(lambda x, y: x != y, other)
+        return self.set(lambda x, y: x != y, other, '!=')
 
     def __lt__(self, other):
-        return self.set(lambda x, y: x < y, other)
+        return self.set(lambda x, y: x < y, other, '<')
 
     def __gt__(self, other):
-        return self.set(lambda x, y: x > y, other)
+        return self.set(lambda x, y: x > y, other, '>')
 
     def __le__(self, other):
-        return self.set(lambda x, y: x <= y, other)
+        return self.set(lambda x, y: x <= y, other, '<=')
 
     def __ge__(self, other):
-        return self.set(lambda x, y: x >= y, other)
+        return self.set(lambda x, y: x >= y, other, '>=')
+
+    def __str__(self):
+        return '`%s` %s %s' % (self.name, self.linker, json.dumps(self.value, cls=JSONCls))
+
+    @staticmethod
+    def parse(value):
+        class FieldDict(object):
+            def __init__(self, e):
+                self.e = e
+
+            def __getitem__(self, item):
+                return self.e.get(item, Field(item))
+
+        env = {
+            'Field': Field,
+            'And': And,
+            'Or': Or,
+            'pytz': pytz,
+            'datetime': datetime
+        }
+        result = eval(value, env, FieldDict(env))
+        if isinstance(result, (tuple, list)):
+            result = And(*result)
+        return result
 
 
 class And(object):
@@ -108,6 +134,9 @@ class And(object):
     def result(self, data):
         return all([v.result(data) for v in self.args])
 
+    def __str__(self):
+        return ' And '.join(['(%s)' % i for i in self.args])
+
 
 class Or(object):
     def __init__(self, *args):
@@ -115,3 +144,6 @@ class Or(object):
 
     def result(self, data):
         return any([v.result(data) for v in self.args])
+
+    def __str__(self):
+        return ' Or '.join(['(%s)' % i for i in self.args])

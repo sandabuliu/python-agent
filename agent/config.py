@@ -105,10 +105,14 @@ def rule(name='root', rulebase=None):
 
     ret = {'type': rules['type'], 'rule': rule_type(rules)}
     if rules.get('fields'):
-        fields = json.loads(rules['fields'], object_hook=_decode_dict)
+        try:
+            fields = json.loads(rules['fields'], object_hook=_decode_dict)
+        except:
+            fields = [i.strip() for i in rules['fields'].split(',')]
         if isinstance(fields, list):
             fields = dict(zip(fields, [str(i) for i in range(len(fields))]))
-            fields.pop(None, None)
+        fields.pop(None, None)
+        fields.pop('', None)
         ret['fields'] = fields
     if rules.get('subrules'):
         ret['subrules'] = {k: rule(v, rulebase) for k, v in
