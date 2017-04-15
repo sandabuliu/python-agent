@@ -13,6 +13,8 @@
 
 ### 使用规则库规则
 
+使用`rule`函数读取规则 
+
 ```python
 from agent import rule, source, output, Agent
 s = source.File('/var/log/nginx/access.log')
@@ -132,7 +134,7 @@ fields=skill_1,skill_2,skill_3
 
 ```python
 from agent import rulebase
-rulebase.append('/tmp/rule')  # 使用规则文件扩充规则库
+rulebase.append('/tmp/rule')  # 将新的规则文件补充到系统规则库, 加入后可以直接通过规则名直接加载规则
 rulebase.remove(1)            # 删除编号为1的规则文件
 rulebase.all()                # 全部规则文件
 ```
