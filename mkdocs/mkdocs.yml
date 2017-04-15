@@ -1,0 +1,35 @@
+site_name: 糯米炒糍粑
+site_author: 'Tongbin'
+copyright: 'Copyright &copy; 2017 Tong'
+pages:
+- 主页: index.md
+- 数据采集框架:
+    - QuickStart: python-agent/quickstart.md
+    - 数据处理: python-agent/agent.md
+    - 数据源: python-agent/source.md
+    - 数据输出: python-agent/output.md
+    - 数据发送: python-agent/sender.md
+    - 解析规则: python-agent/rule.md
+    - 其他补充: python-agent/high-level.md
+- 本站统计信息:
+    - 今日访问: statistics/today.md
+    - 最近访问: statistics/month.md
+    - 访问较多的IP: statistics/ip.md
+    - 访问量占比: statistics/access.md
+    - 访问量时段: statistics/hour.md
+theme: material
+
+repo_name: 'sandabuliu'
+repo_url: 'https://github.com/sandabuliu/python-agent'
+
+extra:
+  palette:
+    primary: indigo
+    accent: indigo
+  social:
+    - type: 'github'
+      link: 'https://github.com/sandabuliu'
+  logo: 'static/image18.jpeg'
+
+markdown_extensions:
+  - codehilite
