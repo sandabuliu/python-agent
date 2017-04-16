@@ -4,7 +4,7 @@
 
 `python-agent`包中内置了两个 logger ——`agent` 和 `trace`。
 
-默认仅添加了一个`NullHandler`， 可通过 python 的日志模块 `logging` 进行配置。具体使用可详见 [logging - Logging facility for Python](https://docs.python.org/2/library/logging.html)。
+每个logger默认仅添加了一个`NullHandler`， 可通过 python 的日志模块 `logging` 进行配置。具体使用可详见 [logging - Logging facility for Python](https://docs.python.org/2/library/logging.html)。
 
 `agent` 日志中记录了全部解析信息， 其中不同的日志级别记录了不同的日志信息：    
 

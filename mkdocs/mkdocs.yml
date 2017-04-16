@@ -11,7 +11,10 @@ pages:
     - 数据发送: python-agent/sender.md
     - 解析规则: python-agent/rule.md
     - 其他补充: python-agent/high-level.md
-- 本站统计信息:
+- 日志数据分析:
+    - Nginx日志: analytics/nginx-log.md
+- 关于本站信息:
+    - 本站结构: statistics/struct.md
     - 今日访问: statistics/today.md
     - 最近访问: statistics/month.md
     - 访问较多的IP: statistics/ip.md

@@ -5,7 +5,7 @@
 
 ### 流程 & 结构
 -----------
-<img src=docs/static/structure.png />
+<img src=mkdocs/docs/static/structure.png />
 
 
 ### 安装
