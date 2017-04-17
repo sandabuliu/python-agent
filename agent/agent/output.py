@@ -18,7 +18,18 @@ __author__ = 'tong'
 logger = Logging()
 
 
-class Kafka(object):
+class OutputBase(object):
+    def __init__(self):
+        self.agent = None
+
+    def catch(self, agent):
+        self.agent = agent
+
+    def throw(self):
+        self.agent = None
+
+
+class Kafka(OutputBase):
     def __init__(self, topic, server, client=None, **kwargs):
         try:
             import kafka
@@ -33,6 +44,7 @@ class Kafka(object):
         except Exception, e:
             raise OutputError('kafka client init failed: %s' % e)
         self.producer(kafka.SimpleProducer)
+        super(Kafka, self).__init__()
 
     def producer(self, producer, **kwargs):
         try:
@@ -57,12 +69,13 @@ class Kafka(object):
             self._producer = None
 
 
-class HTTPRequest(object):
+class HTTPRequest(OutputBase):
     def __init__(self, server, headers=None, method='GET'):
         self.server = server
         self.method = method.upper()
         self.headers = headers or {}
         self.headers.setdefault('User-Agent', 'python-Agent %s HTTPRequest' % __version__)
+        super(HTTPRequest, self).__init__()
 
     def send(self, event):
         import requests
@@ -104,14 +117,20 @@ class HTTPRequest(object):
         return result
 
 
-class Csv(object):
-    def __init__(self, filename, fieldnames, **kwargs):
-        from csv import DictWriter
+class Csv(OutputBase):
+    def __init__(self, filename, fieldnames=None, **kwargs):
         self.fp = open(filename, 'w')
         self.filename = filename
         self.fieldnames = fieldnames
         self.kwargs = kwargs
-        self.writer = DictWriter(self.fp, fieldnames, **kwargs)
+        self.writer = None
+        super(Csv, self).__init__()
+
+    def catch(self, agent):
+        from csv import DictWriter
+        super(Csv, self).catch(agent)
+        self.fieldnames = self.fieldnames or agent.parser.fieldnames
+        self.writer = DictWriter(self.fp, self.fieldnames, **self.kwargs)
         self.writer.writeheader()
 
     def send(self, event):
@@ -139,20 +158,25 @@ class Csv(object):
         self.writer.writeheader()
 
 
-class SQLAlchemy(object):
-    def __init__(self, table, fieldnames, *args, **kwargs):
+class SQLAlchemy(OutputBase):
+    def __init__(self, table, *args, **kwargs):
         try:
             from sqlalchemy import create_engine
             from sqlalchemy.orm import sessionmaker
         except ImportError:
-            raise OutputError('Lack of kafka module, try to execute `pip install SQLAlchemy` install it')
+            raise OutputError('Lack of SQLAlchemy module, try to execute `pip install SQLAlchemy` install it')
+        self.quote = kwargs.pop('quote', '`')
+        self.fields = kwargs.pop('fieldnames', None)
         self.engine = create_engine(*args, **kwargs)
         self.DB_Session = sessionmaker(bind=self.engine)
-        self.quote = kwargs.pop('quote', '`')
         self._session = None
         self._timer = None
         self._table = table
+        super(SQLAlchemy, self).__init__()
 
+    def catch(self, agent):
+        super(SQLAlchemy, self).catch(agent)
+        fieldnames = self.fields or agent.parser.fieldnames
         action = 'INSERT INTO'
         keys = ','.join(['%s%s%s' % (self.quote, key, self.quote) for key in fieldnames])
         values = ','.join([':%s' % key for key in fieldnames])
@@ -182,17 +206,20 @@ class SQLAlchemy(object):
         data = event.raw_data
         self.session.execute(self.sql, data)
         self.session.commit()
+        logger.info('SQL send 1')
 
     def sendmany(self, events):
         self.session.execute(self.sql, [event.raw_data for event in events])
         self.session.commit()
+        logger.info('SQL send %s' % len(events))
 
 
-class Screen(object):
+class Screen(OutputBase):
     def __init__(self, *args, **kwargs):
         self.counter = 0
         self.args = args
         self.kwargs = kwargs
+        super(Screen, self).__init__()
 
     def __getattr__(self, item):
         return lambda *args, **kwargs: item
@@ -212,9 +239,9 @@ class Screen(object):
             self.send(event)
 
 
-class Null(object):
+class Null(OutputBase):
     def __init__(self, *args, **kwargs):
-        pass
+        super(Null, self).__init__()
 
     def __getattr__(self, item):
         return lambda *args, **kwargs: item

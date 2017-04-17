@@ -202,3 +202,9 @@ class Agent(multiprocessing.Process):
         self.source.close()
         if not async:
             self.finish.wait()
+
+    def __iter__(self):
+        def iterate():
+            for item in self.source.slaver():
+                yield self.clean(self.operate(item))
+        return iterate()

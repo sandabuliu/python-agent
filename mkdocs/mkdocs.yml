@@ -12,6 +12,8 @@ pages:
     - 解析规则: python-agent/rule.md
     - 其他补充: python-agent/high-level.md
 - 日志数据分析:
+    - 埋点日志: analytics/log-catch.md
+    - 日志分析: analytics/log-analytics.md
     - Nginx日志: analytics/nginx-log.md
 - 关于本站信息:
     - 本站结构: statistics/struct.md
