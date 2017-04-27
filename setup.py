@@ -42,7 +42,7 @@ LICENSE = ''
 PACKAGES = find_packages(exclude=['tests', 'tests.*'])
 PACKAGE_DATA = {'agent': ['logging.conf', 'rule']}
 
-INSTALL_REQUIRES = ['multiprocess>=0.70.5', 'pyparsing>=2.1.5',
+INSTALL_REQUIRES = ['multiprocess>=0.70.5', 'pyparsing>=2.1.5', 'pytz'
                     'python-dateutil>=2.5.3', 'psutil>=4.3.0', 'pybloom>=1.1']
 
 if not WINDOWS:

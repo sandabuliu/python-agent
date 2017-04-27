@@ -83,7 +83,7 @@ def resource(uri, **kwargs):
     return AG(uri, **kwargs)
 
 
-df = data('agent:/Users/tong/test.test', rule=rule('nginx'))
+df = data('agent:/var/log/nginx/access.log', rule=rule('nginx'))
 print df.peek()     #  预览数据
 print compute(df.count(), chunks=2, chunksize=2000)  #  计算两个窗口内的个数, 每个窗口大小为 2000
 print compute(df.method.distinct().count(), chunks=1, chunksize=10000)  #  计算一个窗口内的请求方法种类, 每个窗口大小为10000
