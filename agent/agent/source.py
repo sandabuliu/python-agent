@@ -17,7 +17,7 @@ logger = Logging()
 
 
 class Log(object):
-    def __init__(self, path, wait=3, times=3, startline=None):
+    def __init__(self, path, wait=3, times=3, startline=None, position=None):
         path = os.path.abspath(path)
         if not os.path.exists(path):
             raise SourceError('logsource init failed, '
@@ -32,6 +32,7 @@ class Log(object):
         self.times = times
         self.inter = multiprocessing.Event()
         self.startline = startline or 0
+        self.position = position or 0
 
     def open(self, filename):
         if self.stream and not self.stream.closed:
@@ -40,15 +41,24 @@ class Log(object):
         self.pos = self.stream.tell()
         self.lineno = 0
 
-    def slaver(self):
-        import psutil
-        self.process = psutil.Process()
-        self.catch()
+    def seek(self):
+        if self.position > 0:
+            self.stream.seek(self.position)
+            return
+        if self.position < 0:
+            self.stream.seek(self.position, 2)
+            return
         for i in range(self.startline):
             self.lineno += 1
             self.stream.readline()
         if self.startline < 0:
             self.stream.seek(0, 2)
+
+    def slaver(self):
+        import psutil
+        self.process = psutil.Process()
+        self.catch()
+        self.seek()
         while True:
             if self.inter.is_set():
                 logger.info('SOURCE LOG STOP: %s' % self.lineno)
@@ -105,7 +115,7 @@ class Log(object):
 
 
 class File(object):
-    def __init__(self, path, filewait=None, confirmwait=None, cachefile=None):
+    def __init__(self, path, filewait=None, confirmwait=None, cachefile=None, position=None, startline=None):
         self.path = os.path.abspath(path)
         self.inter = multiprocessing.Event()
         self.filename = None
@@ -114,6 +124,22 @@ class File(object):
         self.lineno = 0
         logger.info('SOURCE FILE FILTER: %s: %s' % (self.path, cachefile))
         self.filter = Filter(cachefile)
+        self.position = position or 0
+        self.startline = startline or 0
+        self.stream = None
+
+    def seek(self):
+        if self.position > 0:
+            self.stream.seek(self.position)
+            return
+        if self.position < 0:
+            self.stream.seek(self.position, 2)
+            return
+        for i in range(self.startline):
+            self.lineno += 1
+            self.stream.readline()
+        if self.startline < 0:
+            self.stream.seek(0, 2)
 
     @staticmethod
     def endpoint(fp):
@@ -127,7 +153,8 @@ class File(object):
         self.filename = filename
         logger.info('SOURCE FILE dumping %s' % filename)
         try:
-            return open(filename)
+            self.stream = open(filename)
+            return self.stream
         except Exception, e:
             logger.error('SOURCE FILE open %s failed, cause: %s' % (filename, e))
         return None
@@ -176,21 +203,25 @@ class File(object):
 
             logger.info('SOURCE FILE new file %s' % files)
             for filename in sorted(files):
-                fp = self.open(filename)
-                if not fp:
+                self.open(filename)
+                self.seek()
+                if not self.stream:
                     continue
 
                 try:
-                    for line in self.fetch(fp):
+                    for line in self.fetch(self.stream):
                         yield line
                 except Exception, e:
                     logger.error('SOURCE FILE dumping %s failed, cause: %s' % (filename, e))
                     try:
-                        fp.close()
+                        self.stream.close()
+                        self.stream = None
                     except:
                         pass
                     continue
 
+                if self.stream and not self.stream.closed:
+                    self.stream.close()
                 if self.inter.is_set():
                     break
                 self.filter.add(filename)

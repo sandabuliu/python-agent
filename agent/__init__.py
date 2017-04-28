@@ -7,4 +7,9 @@ from agent.agent.agent import Agent
 from agent.agent import source, output, sender
 from agent.config import rule, ruletocfg, rulebase
 
+try:
+    import blaze_agent
+except ImportError:
+    pass
+
 __author__ = 'tong'
