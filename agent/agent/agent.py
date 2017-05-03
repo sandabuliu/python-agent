@@ -124,8 +124,7 @@ class Agent(multiprocessing.Process):
     def add_parser(self):
         self.parser_num += 1
         p = self.Process(name='%s-Parser.%s' % (self.agentname, self.parser_num),
-                         target=self.process,
-                         args=(self.qin, ))
+                         target=self.process, args=(self.qin, ))
         self.parsers.append(p)
         p.start()
         logger.info('AGENT START PARSER: %s-Parser.%s' % (self.agentname, self.parser_num))
@@ -172,7 +171,7 @@ class Agent(multiprocessing.Process):
         self.finish.set()
 
     def process(self, qin):
-        from multiprocessing import queues
+        from multiprocess import queues
         if isinstance(qin, queues.Queue):
             signal.signal(signal.SIGINT, ctrl_c)
         sender = self.sender
@@ -206,5 +205,11 @@ class Agent(multiprocessing.Process):
     def __iter__(self):
         def iterate():
             for item in self.source.slaver():
-                yield self.clean(self.operate(item))
+                try:
+                    item = self.operate(item)
+                    if not item:
+                        continue
+                    yield self.clean(item)
+                except Exception, e:
+                    logger.warn('PARSER PASS error: %s' % e).trace(line=item)
         return iterate()
