@@ -8,7 +8,9 @@ from agent.agent import source, output, sender
 from agent.config import rule, ruletocfg, rulebase
 
 try:
-    import blaze_agent
+    from blaze_agent import AGENT
+    from odo.convert import ooc_types
+    ooc_types.add(AGENT)
 except ImportError:
     pass
 
