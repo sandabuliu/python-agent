@@ -3,6 +3,18 @@ site_author: 'Tongbin'
 copyright: 'Copyright &copy; 2017 Tong'
 pages:
 - 主页: index.md
+- 设计模式:
+    - 简要概述: pattern/pattern.md
+    - 简单工厂: pattern/factory.md
+    - 工厂方法: pattern/method.md
+    - 抽象工厂: pattern/abstruct.md
+    - 代理模式: pattern/proxy.md
+    - 装饰模式: pattern/wraps.md
+    - 单例模式: pattern/single.md
+    - 责任链模式: pattern/chain.md
+- WEBSERVICE:
+    - RESTFUL: webservice/restful.md
+    - Flask-restful: webservice/flask_restful.md
 - 数据采集框架:
     - QuickStart: python-agent/quickstart.md
     - 数据处理: python-agent/agent.md
@@ -11,12 +23,14 @@ pages:
     - 数据发送: python-agent/sender.md
     - 解析规则: python-agent/rule.md
     - 其他补充: python-agent/high-level.md
-- 日志数据分析:
-    - 埋点日志: analytics/log-catch.md
-    - 日志分析: analytics/log-analytics.md
+- 埋点日志接入:
+    - 接入设计: analytics/log-catch.md
+    - 解析模块: analytics/log-parser.md
     - Nginx日志: analytics/nginx-log.md
+- 日志数据分析:
+    - 日志分析: analytics/log-analytics.md
 - 关于本站信息:
-    - 本站结构: statistics/struct.md
+    - 本站结构: struct.md
     - 今日访问: statistics/today.md
     - 最近访问: statistics/month.md
     - 访问较多的IP: statistics/ip.md

@@ -1,1 +1,0 @@
-<img src=../../static/azure.png />
