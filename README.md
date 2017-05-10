@@ -95,3 +95,5 @@ a.start()
 	...
 	
 详细内容, 见: [http://t.navan.cc](http://t.navan.cc)
+
+Copyright © 2017 [g_tongbin@foxmail.com](mailto:g_tongbin@foxmail.com)
