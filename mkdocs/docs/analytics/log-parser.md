@@ -5,7 +5,7 @@
 ### 方案一
 #### NGINX + LUA
 
-<img src=../static/nginx-lua.png width=500 />
+<img src=../../static/nginx-lua.png width=500 />
 
     1、线上请求打向nginx后，使用lua完成日志整理:如统一日志格式，过滤无效请求，分组等。      
     2、根据不同业务的nginx日志,划分不同的topic
@@ -21,7 +21,7 @@
 ### 方案二
 #### nginx + [python-agent](../python-agent/quickstart.md)
 
-<img src=../static/nginx-agent.png width=500 />
+<img src=../../static/nginx-agent.png width=500 />
 
     1、使用 Nginx 日志作为缓存池
     2、使用 python-agent 解析日志，并异步发送到kafka集群
@@ -44,7 +44,7 @@
 
 方案二中，Nginx以及日志的记录／读取／解析均需要在同一服务器中，因此很不利于架构的扩展，对服务器压力也会很大，所以可以考虑使用`distributed-agent`将解析过程在集群中实现。
 
-<img src=../static/nginx-distributed-agent.png width=500 />
+<img src=../../static/nginx-distributed-agent.png width=500 />
 
 `distributed-agent`部署：
 
