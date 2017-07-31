@@ -23,12 +23,13 @@ pages:
     - 数据发送: python-agent/sender.md
     - 解析规则: python-agent/rule.md
     - 其他补充: python-agent/high-level.md
-- 埋点日志接入:
-    - 接入设计: analytics/log-catch.md
-    - 解析模块: analytics/log-parser.md
-    - Nginx日志: analytics/nginx-log.md
-- 日志数据分析:
-    - 日志分析: analytics/log-analytics.md
+- 日志分析相关:
+    - 数据接入设计: analytics/log-catch.md
+    - 使用Flume采集: analytics/log-flume.md
+    - 解析模块介绍: analytics/log-parser.md
+    - Nginx日志字段: analytics/nginx-log.md
+    - 日志分析(一): analytics/log-shell.md
+    - 日志分析(二): analytics/log-analytics.md
 - 关于本站信息:
     - 本站结构: struct.md
     - 今日访问: statistics/today.md
