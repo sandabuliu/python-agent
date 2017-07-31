@@ -22,7 +22,7 @@ Flume 主要由以下几个部件组成：
 
 其次，从两个工具的诞生历史来看，logstash是作为ELK套件中的一员，原生态就是为es作铺垫的；另一个则更多的是为HDFS而诞生，因此两个工具的应用场景不言而喻。很多情况下二者甚至需要结合使用，如：
 
-<img src=../../static/flume-logstash.jpg width=500 />
+<img src=../../static/flume-logstash.png width=500 />
 
 ### Flume 安装与配置
 
