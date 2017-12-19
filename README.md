@@ -1,7 +1,9 @@
 #  Agent
 
 ### 说明
-这是一个数据结构化框架, 可用作数据清洗, 数据结构化预处理, 数据管道等应用场景
+* 这是一个数据结构化框架, 可用作数据清洗, 数据结构化预处理, 数据管道等应用场景
+* 该工程已经基本不再维护, 类似功能已转移至 [python-stream](https://github.com/sandabuliu/python-stream) 框架中维护
+* 小概率会不定期修复些比较严重的bug
 
 ### 流程 & 结构
 -----------
@@ -66,31 +68,35 @@ a.start()
 
 	=== 1 ===
 	Type: default
-	status: 400
-	body_bytes_sent: 0
-	remote_user: -
-	http_referer: -
-	remote_addr: 52.53.224.247
-	request: POST / HTTP/1.1
-	version: HTTP/1.1
-	http_user_agent: User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)
-	time_local: 2016-12-14 14:35:08
-	path: /
-	method: POST
-	
+	{
+	  "status": "400",
+	  "body_bytes_sent": 0,
+	  "remote_user": "-",
+	  "http_referer": "-",
+	  "remote_addr": "52.53.224.247",
+	  "request": "POST / HTTP/1.1",
+	  "version": "HTTP/1.1",
+	  "http_user_agent": "User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)",
+	  "time_local": "2016-12-14 14:35:08",
+	  "path": "/",
+	  "method": "POST"
+	}
+
 	=== 2 ===
 	Type: default
-	status: 200
-	body_bytes_sent: 5981
-	remote_user: -
-	http_referer: -
-	remote_addr: 123.125.71.76
-	request: GET / HTTP/1.1
-	version: HTTP/1.1
-	http_user_agent: Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)
-	time_local: 2017-03-18 09:50:34
-	path: /
-	method: GET
+	{
+	  "status": "200",
+	  "body_bytes_sent": 5981,
+	  "remote_user": "-",
+	  "http_referer": "-",
+	  "remote_addr": "123.125.71.76",
+	  "request": "GET / HTTP/1.1",
+	  "version": "HTTP/1.1",
+	  "http_user_agent": "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",
+	  "time_local": "2017-03-18 09:50:34",
+	  "path": "/",
+	  "method": "GET"
+	}
 
 	...
 	
